@@ -55,6 +55,27 @@
         position: relative;
     }
 
+    /* Mobile (both app and browser) - same UI with bottom navigation */
+    .content-area {
+        padding: 16px;
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .page {
+        min-height: calc(100vh - 60px - 100px);
+        padding-bottom: 20px;
+    }
+
+    #reports.page {
+        padding-bottom: calc(40px + env(safe-area-inset-bottom));
+    }
+
+    #informations.page {
+        padding-bottom: calc(40px + env(safe-area-inset-bottom));
+    }
+
     body.mobile-app .content-area {
         padding: 16px;
         padding-bottom: calc(100px + env(safe-area-inset-bottom));
@@ -73,11 +94,6 @@
 
     body.mobile-app #informations.page {
         padding-bottom: calc(40px + env(safe-area-inset-bottom));
-    }
-
-    body.mobile-browser .content-area {
-        padding: 16px;
-        padding-bottom: 20px;
     }
 
     .reports-layout {
@@ -475,14 +491,35 @@
         display: inline-flex;
     }
 
-    /* Ensure mobile app bottom nav is visible */
+    /* Ensure bottom nav is visible on all mobile devices */
+    .mobile-bottom-nav {
+        display: flex !important;
+        visibility: visible !important;
+        z-index: 1006 !important;
+    }
+
     body.mobile-app .mobile-bottom-nav {
         display: flex !important;
         visibility: visible !important;
         z-index: 1006 !important;
     }
 
-    /* Ensure sidebar is completely hidden on mobile app */
+    /* Ensure sidebar is completely hidden on all mobile devices */
+    .desktop-sidebar {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    .sidebar-backdrop {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    .hamburger-btn {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
     body.mobile-app .desktop-sidebar {
         display: none !important;
         visibility: hidden !important;

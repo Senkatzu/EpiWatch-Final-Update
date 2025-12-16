@@ -1090,7 +1090,7 @@ body {
     position: relative;
 }
 
-/* Desktop-specific styles - also applies to mobile browser */
+/* Desktop-specific styles - only desktop uses sidebar */
 @media (min-width: 769px) {
     .hamburger-btn {
         display: flex;
@@ -1141,77 +1141,64 @@ body {
     }
 }
 
-/* Mobile browser - use desktop UI (same as desktop browser) */
+/* Mobile (both app and browser) - use bottom navigation, hide sidebar */
 @media (max-width: 768px) {
-    body.mobile-browser .hamburger-btn {
-        display: flex;
+    /* Hide sidebar on all mobile devices */
+    .desktop-sidebar {
+        display: none !important;
+        visibility: hidden !important;
     }
 
-    body.mobile-browser .desktop-sidebar {
-        display: flex;
+    .sidebar-backdrop {
+        display: none !important;
+        visibility: hidden !important;
     }
 
-    body.mobile-browser .mobile-bottom-nav {
+    .hamburger-btn {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Show bottom navigation on all mobile devices */
+    .mobile-bottom-nav {
+        display: flex !important;
+        visibility: visible !important;
+    }
+
+    .mobile-profile-btn {
+        display: inline-flex !important;
+    }
+
+    .user-display,
+    #logout-btn {
         display: none !important;
     }
 
-    body.mobile-browser .mobile-profile-btn {
-        display: none !important;
+    .content-area {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
     }
 
-    body.mobile-browser .user-display,
-    body.mobile-browser #logout-btn {
-        display: block;
-    }
-
-    body.mobile-browser .content-area {
-        padding-bottom: 20px;
-    }
-
-    body.mobile-browser .reports-layout {
+    .reports-layout {
         grid-template-columns: 1fr;
         gap: 20px;
     }
 
-    body.mobile-browser .reports-layout .panel {
+    .reports-layout .panel {
         max-height: none;
         overflow-y: visible;
     }
-
-    /* Medical theme colors for desktop and mobile browser */
-    body.mobile-browser .desktop-sidebar {
-        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-    }
-
-    body.mobile-browser .desktop-nav-item.active {
-        background: rgba(34, 197, 94, 0.15);
-        color: #22c55e;
-        border-left-color: #22c55e;
-    }
-
-    body.mobile-browser .desktop-nav-item:hover {
-        border-left-color: #22c55e;
-    }
-
-    body.mobile-browser .sidebar-brand-name {
-        color: #22c55e;
-    }
 }
 
-/* Mobile App - hide desktop sidebar completely, show mobile nav */
+/* Mobile App - ensure sidebar is hidden and bottom nav is visible */
 @media (max-width: 768px) {
-    /* Completely hide desktop sidebar on mobile app (standalone) */
     body.mobile-app .desktop-sidebar {
         display: none !important;
         visibility: hidden !important;
-        opacity: 0 !important;
-        transform: translateX(-100%) !important;
     }
 
     body.mobile-app .sidebar-backdrop {
         display: none !important;
         visibility: hidden !important;
-        opacity: 0 !important;
     }
 
     body.mobile-app .hamburger-btn {
@@ -1223,22 +1210,12 @@ body {
         margin-left: 0 !important;
     }
 
-    body.mobile-app .user-display,
-    body.mobile-app #logout-btn {
-        display: none !important;
-    }
-
-    body.mobile-app .mobile-profile-btn {
-        display: inline-flex !important;
-    }
-
-    /* Mobile app shows bottom navigation */
     body.mobile-app .mobile-bottom-nav {
         display: flex !important;
         visibility: visible !important;
     }
 
-    /* Ensure sidebar never opens on mobile app */
+    /* Ensure sidebar never opens on mobile */
     body.mobile-app .desktop-sidebar.open {
         display: none !important;
         transform: translateX(-100%) !important;
