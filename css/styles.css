@@ -1090,7 +1090,7 @@ body {
     position: relative;
 }
 
-/* Desktop-specific styles */
+/* Desktop-specific styles - also applies to mobile browser */
 @media (min-width: 769px) {
     .hamburger-btn {
         display: flex;
@@ -1134,9 +1134,14 @@ body {
     .sidebar-backdrop.active {
         z-index: 1000;
     }
+
+    .user-display,
+    #logout-btn {
+        display: block;
+    }
 }
 
-/* Mobile browser - use desktop UI */
+/* Mobile browser - use desktop UI (same as desktop browser) */
 @media (max-width: 768px) {
     body.mobile-browser .hamburger-btn {
         display: flex;
@@ -1154,22 +1159,41 @@ body {
         display: none !important;
     }
 
-    /* Medical theme colors for desktop */
-    .desktop-sidebar {
+    body.mobile-browser .user-display,
+    body.mobile-browser #logout-btn {
+        display: block;
+    }
+
+    body.mobile-browser .content-area {
+        padding-bottom: 20px;
+    }
+
+    body.mobile-browser .reports-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    body.mobile-browser .reports-layout .panel {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    /* Medical theme colors for desktop and mobile browser */
+    body.mobile-browser .desktop-sidebar {
         background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
     }
 
-    .desktop-nav-item.active {
+    body.mobile-browser .desktop-nav-item.active {
         background: rgba(34, 197, 94, 0.15);
         color: #22c55e;
         border-left-color: #22c55e;
     }
 
-    .desktop-nav-item:hover {
+    body.mobile-browser .desktop-nav-item:hover {
         border-left-color: #22c55e;
     }
 
-    .sidebar-brand-name {
+    body.mobile-browser .sidebar-brand-name {
         color: #22c55e;
     }
 }
@@ -1193,24 +1217,17 @@ body {
         margin-left: 0 !important;
     }
 
-    /* Mobile browser - show desktop UI */
-    body.mobile-browser .mobile-bottom-nav {
-        display: none !important;
+    body.mobile-app .user-display,
+    body.mobile-app #logout-btn {
+        display: none;
     }
 
-    body.mobile-browser .mobile-profile-btn {
-        display: none !important;
+    body.mobile-app .mobile-profile-btn {
+        display: inline-flex;
     }
 
-    body.mobile-browser .desktop-sidebar {
-        display: flex;
-    }
-
-    body.mobile-browser .hamburger-btn {
-        display: flex;
-    }
-
-    body.mobile-browser .content-area {
-        padding-bottom: 20px;
+    /* Mobile app shows bottom navigation */
+    body.mobile-app .mobile-bottom-nav {
+        display: flex !important;
     }
 }
