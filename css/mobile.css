@@ -478,6 +478,24 @@
     /* Ensure mobile app bottom nav is visible */
     body.mobile-app .mobile-bottom-nav {
         display: flex !important;
+        visibility: visible !important;
+        z-index: 1006 !important;
+    }
+
+    /* Ensure sidebar is completely hidden on mobile app */
+    body.mobile-app .desktop-sidebar {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    body.mobile-app .sidebar-backdrop {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    body.mobile-app .hamburger-btn {
+        display: none !important;
+        visibility: hidden !important;
     }
 
     .page-map {

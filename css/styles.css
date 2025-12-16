@@ -1198,19 +1198,25 @@ body {
     }
 }
 
-/* Mobile App - hide desktop sidebar, show mobile nav */
+/* Mobile App - hide desktop sidebar completely, show mobile nav */
 @media (max-width: 768px) {
-    /* Only hide desktop sidebar if it's a mobile app (standalone) */
+    /* Completely hide desktop sidebar on mobile app (standalone) */
     body.mobile-app .desktop-sidebar {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        transform: translateX(-100%) !important;
     }
 
     body.mobile-app .sidebar-backdrop {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
     }
 
     body.mobile-app .hamburger-btn {
         display: none !important;
+        visibility: hidden !important;
     }
 
     body.mobile-app .main {
@@ -1219,15 +1225,26 @@ body {
 
     body.mobile-app .user-display,
     body.mobile-app #logout-btn {
-        display: none;
+        display: none !important;
     }
 
     body.mobile-app .mobile-profile-btn {
-        display: inline-flex;
+        display: inline-flex !important;
     }
 
     /* Mobile app shows bottom navigation */
     body.mobile-app .mobile-bottom-nav {
         display: flex !important;
+        visibility: visible !important;
+    }
+
+    /* Ensure sidebar never opens on mobile app */
+    body.mobile-app .desktop-sidebar.open {
+        display: none !important;
+        transform: translateX(-100%) !important;
+    }
+
+    body.mobile-app .sidebar-backdrop.active {
+        display: none !important;
     }
 }
