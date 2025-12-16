@@ -1156,6 +1156,12 @@
     }
 
     function toggleSidebar(open) {
+        // Don't allow sidebar to open on mobile app
+        const isMobileApp = document.body.classList.contains('mobile-app');
+        if (isMobileApp) {
+            return;
+        }
+
         const sidebar = qs('desktop-sidebar');
         const backdrop = qs('sidebar-backdrop');
         const hamburger = qs('hamburger-btn');
@@ -1225,8 +1231,9 @@
             }
         }
 
-        // Close sidebar on mobile after navigation
-        if (window.innerWidth <= 768) {
+        // Close sidebar on mobile browser after navigation (not on mobile app)
+        const isMobileApp = document.body.classList.contains('mobile-app');
+        if (window.innerWidth <= 768 && !isMobileApp) {
             closeSidebar();
         }
 
@@ -1564,17 +1571,28 @@
         showToast('success', 'Welcome', `Signed in as ${safeText(currentUsername)} (${safeText(currentUserRole)})`);
 
         // Detect mobile browser vs mobile app
-        if (isMobileBrowser()) {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone || 
+                           document.referrer.includes('android-app://');
+        
+        if (isStandalone && window.innerWidth <= 768) {
+            // Standalone app (PWA/APK) on mobile - use mobile app UI
+            document.body.classList.add('mobile-app');
+            document.body.classList.remove('mobile-browser');
+        } else if (isMobileBrowser()) {
+            // Mobile browser - use desktop UI
             document.body.classList.add('mobile-browser');
             document.body.classList.remove('mobile-app');
         } else if (window.innerWidth <= 768) {
+            // Small screen but not detected as browser or app - assume mobile app
             document.body.classList.add('mobile-app');
             document.body.classList.remove('mobile-browser');
         } else {
+            // Desktop
             document.body.classList.remove('mobile-app', 'mobile-browser');
         }
 
-        // Initialize desktop sidebar
+        // Initialize desktop sidebar (only for desktop and mobile browser)
         initDesktopSidebar();
     }
 
@@ -1619,8 +1637,9 @@
             });
         });
 
-        // Auto-open sidebar on desktop or mobile browser by default
-        const shouldShowDesktopUI = window.innerWidth > 768 || isMobileBrowser();
+        // Auto-open sidebar on desktop or mobile browser by default (NOT on mobile app)
+        const isMobileApp = document.body.classList.contains('mobile-app');
+        const shouldShowDesktopUI = (window.innerWidth > 768 || isMobileBrowser()) && !isMobileApp;
         if (shouldShowDesktopUI) {
             setTimeout(() => toggleSidebar(true), 100);
         }
@@ -1636,13 +1655,24 @@
     window.deleteReport = deleteReport;
 
     function updateMobileBrowserDetection() {
-        if (isMobileBrowser()) {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                           window.navigator.standalone || 
+                           document.referrer.includes('android-app://');
+        
+        if (isStandalone && window.innerWidth <= 768) {
+            // Standalone app (PWA/APK) on mobile - use mobile app UI
+            document.body.classList.add('mobile-app');
+            document.body.classList.remove('mobile-browser');
+        } else if (isMobileBrowser()) {
+            // Mobile browser - use desktop UI
             document.body.classList.add('mobile-browser');
             document.body.classList.remove('mobile-app');
         } else if (window.innerWidth <= 768) {
+            // Small screen but not detected as browser or app - assume mobile app
             document.body.classList.add('mobile-app');
             document.body.classList.remove('mobile-browser');
         } else {
+            // Desktop
             document.body.classList.remove('mobile-app', 'mobile-browser');
         }
     }
