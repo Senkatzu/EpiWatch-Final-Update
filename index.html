@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EpiWatch - Secure System v7</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <script src="js/config.js"></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/mobile.js" defer></script>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <div class="login-brand">
+                <img class="brand-logo" src="epiwatch-logo.png" alt="EpiWatch" />
+                <div>
+                    <h2>EpiWatch</h2>
+                    <p>Secure Surveillance System</p>
+                </div>
+            </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="login-user" class="form-input" placeholder="username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="login-pass" class="form-input" placeholder="password" required>
+                </div>
+                <button type="submit" class="btn-submit" id="login-submit-btn">
+                    <span id="login-btn-text">Secure Login</span>
+                    <span id="login-loading" class="login-loading" style="display: none;">
+                        <span class="loading-spinner-small"></span> Logging in...
+                    </span>
+                </button>
+            </form>
+
+            <div id="login-error" class="login-error">Invalid credentials</div>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <!-- Desktop Sidebar -->
+        <aside class="desktop-sidebar" id="desktop-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <img class="brand-logo" src="epiwatch-logo.png" alt="EpiWatch" />
+                    <div class="sidebar-brand-name">EpiWatch</div>
+                </div>
+                <button class="sidebar-close-btn" id="sidebar-close-btn" type="button" aria-label="Close sidebar">×</button>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item desktop-nav-item active" data-page="dashboard" type="button">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </button>
+                <button class="nav-item desktop-nav-item" data-page="map" type="button">
+                    <span class="nav-icon">🌍</span>
+                    <span class="nav-label">Live Map</span>
+                </button>
+                <button class="nav-item desktop-nav-item" data-page="reports" type="button">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-label">Submit Report</span>
+                </button>
+                <button class="nav-item desktop-nav-item" data-page="informations" type="button">
+                    <span class="nav-icon">ℹ️</span>
+                    <span class="nav-label">Case Information</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebar-user-display">—</div>
+                    <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+                </div>
+                <button class="nav-item desktop-nav-item logout" id="desktop-logout-btn" type="button" onclick="handleLogout()">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-label">Log Out</span>
+                </button>
+            </div>
+        </aside>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <button class="hamburger-btn" id="hamburger-btn" type="button" aria-label="Toggle sidebar">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </button>
+                    <div class="header-brand">
+                        <img class="brand-logo" src="epiwatch-logo.png" alt="EpiWatch" />
+                        <div class="header-brand-text">
+                            <div class="header-brand-name">EpiWatch</div>
+                            <h2 id="page-title" class="page-title">Surveillance Dashboard</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <button class="mobile-profile-btn" id="mobile-profile-btn" type="button" aria-label="Open profile">
+                        <span class="profile-dot"></span>
+                    </button>
+
+                    <div class="user-display">User: <strong id="user-display">—</strong></div>
+                    <button class="btn-mini" id="logout-btn" type="button" onclick="handleLogout()">Log Out</button>
+                </div>
+            </header>
+
+            <div class="content-area" id="content-area">
+
+                <div id="dashboard" class="page active">
+                    <div class="stats-row">
+                        <div class="card">
+                            <h3>Active Cases</h3>
+                            <div class="val" id="disp-active">0</div>
+                            <div class="sub">Currently Sick</div>
+                        </div>
+
+                        <div class="card alert-zone">
+                            <h3><span class="blink"></span> Critical Zones</h3>
+                            <div class="sub" style="margin-bottom:5px;">Red Alert Areas:</div>
+                            <div class="zone-list" id="zone-list">None detected</div>
+                            <button class="btn-view-map" onclick="showPage('map')">View Live Map</button>
+                        </div>
+
+                        <div class="card">
+                            <h3>Total Cases (All Time)</h3>
+                            <div class="val" style="color:var(--success)" id="disp-total">0</div>
+                            <div class="sub">Total Recorded</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-split">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <span>Monthly Trend</span>
+                                <div>
+                                    <button class="btn-mini" onclick="downloadChartImage()">Save Chart</button>
+                                    <button class="btn-mini" onclick="downloadCSV()">Export CSV</button>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <div class="loading-overlay" id="chart-loading" style="display: none;">
+                                    <div class="loading-spinner"></div>
+                                    <div class="loading-text">Loading chart...</div>
+                                </div>
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- System Logs moved to Informations page -->
+                    </div>
+                </div>
+
+                <div id="map" class="page page-map">
+                    <div id="map-container" class="map-container"></div>
+                    <div class="map-legend">
+                        <div><span class="dot" style="background:red"></span>Critical (Hospitalized)</div>
+                        <div><span class="dot" style="background:orange"></span>Stable (Home)</div>
+                        <div><span class="dot" style="background:green"></span>Recovered</div>
+                    </div>
+                </div>
+
+                <div id="informations" class="page">
+                    <div class="reports-layout">
+                        <div class="panel">
+                            <div class="panel-header">System Logs</div>
+                            <div id="feed-list" class="feed-list">
+                                <div class="feed-row">System Online - Waiting for data...</div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <span>Case Database</span>
+                                <div id="table-result-count" class="table-result-count"></div>
+                            </div>
+                            <div class="table-filters">
+                                <input type="text" id="table-search" class="table-search-input" placeholder="Search by name, location, or diagnosis...">
+                                <select id="table-filter-status" class="table-filter-select">
+                                    <option value="">All Status</option>
+                                    <option value="Critical">Critical</option>
+                                    <option value="Stable">Stable</option>
+                                    <option value="Recovered">Recovered</option>
+                                </select>
+                                <select id="table-filter-diagnosis" class="table-filter-select">
+                                    <option value="">All Diagnoses</option>
+                                    <option value="Dengue">Dengue</option>
+                                    <option value="Cholera">Cholera</option>
+                                    <option value="Typhoid">Typhoid</option>
+                                    <option value="Influenza">Influenza</option>
+                                    <option value="COVID-19">High Flu</option>
+                                </select>
+                                <input type="date" id="table-filter-date-from" class="table-filter-date" placeholder="From Date">
+                                <input type="date" id="table-filter-date-to" class="table-filter-date" placeholder="To Date">
+                                <button type="button" id="table-clear-filters" class="btn-mini">Clear Filters</button>
+                            </div>
+                            <div class="table-wrapper" id="table-wrapper">
+                                <div class="loading-overlay" id="table-loading" style="display: none;">
+                                    <div class="loading-spinner"></div>
+                                    <div class="loading-text">Loading data...</div>
+                                </div>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Name</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reports" class="page">
+                    <div class="reports-layout">
+                        <div class="panel">
+                            <div class="panel-header">Submit Report</div>
+
+                            <form id="report-form" onsubmit="submitReport(event)">
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" id="r-date" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Patient Name</label>
+                                    <input type="text" id="r-name" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Province</label>
+                                    <select id="r-province" class="form-select" required>
+                                        <option value="">Select Province</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Municipality / City</label>
+                                    <select id="r-muni" class="form-select" required disabled>
+                                        <option value="">Select Municipality / City</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Barangay</label>
+                                    <select id="r-brgy" class="form-select" required disabled>
+                                        <option value="">Select Barangay</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Street / Building Name <span class="form-label-optional">(Optional)</span></label>
+                                    <input type="text" id="r-street" class="form-input" placeholder="e.g., Main Street, Building Name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Diagnosis</label>
+                                    <select id="r-diag" class="form-select">
+                                        <option value="Dengue">Dengue</option>
+                                        <option value="Cholera">Cholera</option>
+                                        <option value="Typhoid">Typhoid</option>
+                                        <option value="Influenza">Influenza</option>
+                                        <option value="COVID-19">High Flu</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select id="r-status" class="form-select">
+                                        <option value="Critical">Critical (Hospitalized)</option>
+                                        <option value="Stable">Stable (Home Quarantine)</option>
+                                        <option value="Recovered">Recovered</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn-submit">Save Record</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div class="toast-container" id="toast-container"></div>
+        <div id="modal-root"></div>
+
+        <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+        <aside class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+            <div class="mobile-drawer-header">
+                <div class="mobile-drawer-title">Profile</div>
+                <button class="icon-btn" id="mobile-drawer-close" type="button" aria-label="Close">×</button>
+            </div>
+
+            <div class="mobile-drawer-body">
+                <div class="profile-row">
+                    <div class="profile-label">Username</div>
+                    <div class="profile-value" id="profile-username">—</div>
+                </div>
+
+                <div class="profile-row">
+                    <div class="profile-label">Role</div>
+                    <div class="profile-value" id="profile-role">—</div>
+                </div>
+
+                <div class="profile-row">
+                    <div class="profile-label">Password</div>
+                    <div class="profile-password">
+                        <input id="profile-password" class="profile-pass" type="password" readonly value="">
+                        <button class="btn-mini" id="profile-pass-toggle" type="button">Show</button>
+                    </div>
+                </div>
+
+                <button class="btn-submit" id="profile-logout" type="button">Log Out</button>
+            </div>
+        </aside>
+
+        <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Bottom navigation">
+            <button class="mobile-tab active" id="mobile-tab-dashboard" type="button" data-page="dashboard">
+                <span class="mobile-tab-ico">📊</span>
+                <span class="mobile-tab-label">Dashboard</span>
+            </button>
+            <button class="mobile-tab" id="mobile-tab-map" type="button" data-page="map">
+                <span class="mobile-tab-ico">🌍</span>
+                <span class="mobile-tab-label">Map</span>
+            </button>
+            <button class="mobile-tab" id="mobile-tab-reports" type="button" data-page="reports">
+                <span class="mobile-tab-ico">📝</span>
+                <span class="mobile-tab-label">Reports</span>
+            </button>
+            <button class="mobile-tab" id="mobile-tab-info" type="button" data-page="informations">
+                <span class="mobile-tab-ico">ℹ️</span>
+                <span class="mobile-tab-label">Informations</span>
+            </button>
+            <button class="mobile-tab" id="mobile-tab-profile" type="button" data-page="profile">
+                <span class="mobile-tab-ico">👤</span>
+                <span class="mobile-tab-label">Profile</span>
+            </button>
+        </nav>
+    </div>
+
+</body>
+</html>
